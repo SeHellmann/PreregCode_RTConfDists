@@ -2,7 +2,7 @@
 #####      Comparison Sequential Sampling Confidence Models        #######
 ###########################################################################
 
-# Sebastian Hellmann, 20.07.2021
+# Sebastian Hellmann, 07.05.2021
 
 # 1) Read in data and aggregate data for later visualization
 # 2) Fit the models (dynWEV, 2DSD, IRM(t) and PCRM(t))  and predict rating and rt distribution
@@ -35,7 +35,9 @@ source("functions/ROCs.R")
 #=============================================================
 ###   Load results from previous analysis   ####
 ### (Includes results from sections 1) & 2) ###
-load("collected_fitsNpredicts.RData")
+if (file.exists("collected_fitsNpredicts.RData.R")) {
+  load("collected_fitsNpredicts.RData")
+} else {
 #=============================================================
 #=============================================================
 ########### 1) Read, Preprocess, Aggregate Data ##############
@@ -52,6 +54,8 @@ Data <- Data %>%
                                            labels = paste(c("8.3", "16.7", "33.3", "66.7", "133.3"), "")))
 
 #### Compute confidence rating distribution of the Data    #####
+Data <- Data %>% group_by(stimulus, condition, participant) %>%
+  mutate(nrows=n())
 Data_RatingDist_part <- Data %>% 
   group_by(stimulus, condition, rating, response, correct, participant) %>% 
   summarise(p = n()/(mean(nrows))) %>% 
@@ -154,11 +158,11 @@ print(paste("Fitting both Racing Models took...",
 clusterExport(cl, c("fits_WEVmodels"))
 clusterExport(cl, c("fits_RMmodels"))
 preds_WEV <- ddply(fits_WEVmodels,.(participant, model),
-                    function(df) predictWEV_Conf(df, model = df$model[1], subdivisions = 1000),
+                    function(df) predictWEV_Conf(df, model = df$model[1], subdivisions = 1000, maxrt = 20),
                     .parallel = T)
 table(preds_WEV$info)
 preds_RM <- ddply(fits_RMmodels,.(participant, model),
-               function(df) predictRM_Conf(df, model = df$model[1], subdivisions = 1000, time_scaled = FALSE),
+               function(df) predictRM_Conf(df, model = df$model[1], subdivisions = 1000, time_scaled = FALSE, maxrt = 20),
                .parallel = TRUE)
 table(preds_RM$info)
 
@@ -310,7 +314,8 @@ save(file="collected_fitsNpredicts.RData",
      Preds_RTQuants_corr_rating, Preds_RTQuants_rating,
      Data_RTQuants_corr_cond, Data_RTQuants_cond,
      Data_RTQuants_corr_rating, Data_RTQuants_rating)
-
+    # End of fitting and prediction  
+}   # End of "else"-statement if previous results could not be loaded
 ###############################################################
 
 #=============================================================
