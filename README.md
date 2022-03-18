@@ -1,5 +1,7 @@
-README: Preregistered Code for Sequential Sampling Models for Confidence and Reaction Times
+README: Preregistered Code for Modelling Reaction Time and Confidence Distributions in Decision Making
 ====
+Find the [preregistration on OSF](https://mfr.de-1.osf.io/render?url=https://osf.io/x548k/?direct%26mode=render%26action=download%26mode=render)
+
 
 ## Structure:
 
